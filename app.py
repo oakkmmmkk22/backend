@@ -27,16 +27,24 @@ def get_all_products():
 def add_product():
     data = request.get_json(products)
     count = 0
+    oak = 0
+    if products:
+        print("it empty!!!!")
     for _ in products :
-        count = _    
+        count = _   
+        oak = oak+1
+    # print(oak)
+    ttt = 0
+    if oak != 0 :
+        ttt = count["_id"]+1
     new_product = {
-        "_id":count["_id"]+1,
+        "_id":ttt,
         "name":data["name"],
         "price":data["price"],
     }
     products.append(new_product)
     collection.insert_one({
-        "_id":count["_id"]+1,
+        "_id":ttt,
         "name":data["name"],
         "price":data["price"]
     })
