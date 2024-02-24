@@ -43,5 +43,19 @@ def detele_product(id):
             return jsonify(products),200
     return jsonify(products),404
     
+@app.route("/products/<int:id>",methods=["PUT"])
+def update_product(id):
+    data = request.get_json(products)
+    up_p = {
+        id:{id},
+        "name":data["name"],
+        "price":data["price"],
+    }
+    for o in products:
+        if(o["id"] == id):
+            o.update(data)
+            return jsonify(products),200
+    return jsonify("Not found!!"),200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
