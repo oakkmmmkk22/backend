@@ -1,4 +1,4 @@
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
@@ -17,17 +17,19 @@ def hello_world():
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
-    # return "<p>Hello, World!</p>"
     return jsonify(products),200
 
-
+@app.route("/products",methods=["POST"])
+def insert_product():
+    data = request.json()
+    new_product = {
+        "id":data["id"],
+        "name":data["name"],
+        "price":data["price"],
+        "img":data["img"]
+    }
+    products.append(new_product)
+    return jsonify(products),200
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
-    
-# from flask import Flask
-
-# app = Flask(__name__)
-
-# @app.route("/")
-# def hello_world():
-#     return "<p>Hello, World!</p>"
