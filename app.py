@@ -1,16 +1,18 @@
 from flask import Flask,jsonify,request
 from flask_cors import CORS, cross_origin
+from pymongo.mongo_client import MongoClient
+uri = "mongodb+srv://mongo:mongo@cluster0.jhgevbw.mongodb.net/"
+client = MongoClient(uri)
+db = client["shop"]
+collection = db["products"]
+p_in_DB = collection.find()
+products=[]
+for p in p_in_DB:
+    products.append(p)
+# print(products)
 app = Flask(__name__)
 CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-products=[
-{"id":0,"name":"Notebook Acer Swift","price":45900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0147295/A0147295_s.jpg"},
-{"id":1,"name":"Notebook Asus Vivo","price":19900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146010/A0146010_s.jpg"},
-{"id":2,"name":"Notebook Lenovo Ideapad","price":32900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149009/A0149009_s.jpg"},
-{"id":3,"name":"Notebook MSI Prestige","price":54900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0149954/A0149954_s.jpg"},
-{"id":4,"name":"Notebook DELL XPS","price":99900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146335/A0146335_s.jpg"},
-{"id":5,"name":"Notebook HP Envy","price":46900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0145712/A0145712_s.jpg"}
-];
 
 @app.route("/")
 def hello_world():
@@ -28,18 +30,24 @@ def add_product():
     for _ in products :
         count = _    
     new_product = {
-        "id":count["id"]+1,
+        "_id":count["_id"]+1,
         "name":data["name"],
         "price":data["price"],
     }
     products.append(new_product)
+    collection.insert_one({
+        "_id":count["_id"]+1,
+        "name":data["name"],
+        "price":data["price"]
+    })
     return jsonify(products),200
     
 @app.route("/products/<int:id>",methods=["DELETE"])
 def detele_product(id):
     for o in products:
-        if(o["id"] == id):
+        if(o["_id"] == id):
             products.remove(o)
+            collection.delete_one({"_id":id})
             return jsonify(products),200
     return jsonify(products),404
     
@@ -47,13 +55,20 @@ def detele_product(id):
 def update_product(id):
     data = request.get_json(products)
     up_p = {
-        id:{id},
+        "_id":{id},
         "name":data["name"],
         "price":data["price"],
     }
     for o in products:
-        if(o["id"] == id):
+        if(o["_id"] == id):
             o.update(data)
+            collection.update_many(
+                {"_id":o["_id"]},
+                {"$set":{   "name" : data["name"],
+                            "price" : data["price"]
+                        }
+                }
+            )
             return jsonify(products),200
     return jsonify("Not found!!"),200
 
