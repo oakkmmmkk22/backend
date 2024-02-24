@@ -18,24 +18,30 @@ def hello_world():
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
-    print("oak")
     return jsonify(products),200
 
 @app.route("/products",methods=["POST"])
 @cross_origin()
 def add_product():
     data = request.get_json(products)
-    print("\noak123")
     count = 0
     for _ in products :
-        count = count + 1    
+        count = _    
     new_product = {
-        "id":count,
+        "id":count["id"]+1,
         "name":data["name"],
         "price":data["price"],
     }
     products.append(new_product)
     return jsonify(products),200
+    
+@app.route("/products/<int:id>",methods=["DELETE"])
+def detele_product(id):
+    for o in products:
+        if(o["id"] == id):
+            products.remove(o)
+            return jsonify(products),200
+    return jsonify(products),404
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
