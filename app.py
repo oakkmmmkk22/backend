@@ -1,7 +1,8 @@
 from flask import Flask,jsonify,request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 products=[
 {"id":0,"name":"Notebook Acer Swift","price":45900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0147295/A0147295_s.jpg"},
 {"id":1,"name":"Notebook Asus Vivo","price":19900,"img":"https://img.advice.co.th/images_nas/pic_product4/A0146010/A0146010_s.jpg"},
@@ -17,13 +18,19 @@ def hello_world():
 
 @app.route("/products",methods=["GET"])
 def get_all_products():
+    print("oak")
     return jsonify(products),200
 
 @app.route("/products",methods=["POST"])
-def insert_product():
-    data = request.json()
+@cross_origin()
+def add_product():
+    data = request.get_json(products)
+    print("\noak123")
+    count = 0
+    for _ in products :
+        count = count + 1    
     new_product = {
-        "id":data["id"],
+        "id":count,
         "name":data["name"],
         "price":data["price"],
     }
